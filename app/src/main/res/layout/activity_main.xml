@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/paytm_dark"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
     <TextView
@@ -15,7 +15,7 @@
         android:fontFamily="monospace"
         android:text="Scan Any QR Code"
         android:textAlignment="center"
-        android:textColor="@color/material_dynamic_neutral90"
+        android:textColor="@color/material_dynamic_neutral50"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/scan_button"
         app:layout_constraintEnd_toEndOf="parent"

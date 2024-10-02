@@ -8,5 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="paytm">#08D2FF</color>
+    <color name="paytm_light">#def6ff</color>
     <color name="paytm_dark">#080271</color>
+    <color name="error">#F12617</color>
 </resources>

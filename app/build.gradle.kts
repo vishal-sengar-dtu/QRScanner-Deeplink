@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id ("kotlin-parcelize")
 }
 
 android {
@@ -20,6 +21,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -71,4 +73,7 @@ dependencies {
     // ZXing QR Code Scanner
     implementation (libs.zxing.android.embedded)
     implementation (libs.core)
+
+    // Material Design
+    implementation (libs.material)
 }

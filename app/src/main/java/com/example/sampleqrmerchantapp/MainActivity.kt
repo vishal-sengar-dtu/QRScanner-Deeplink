@@ -7,13 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.sampleqrmerchantapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -39,9 +36,12 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if(result.resultCode == RESULT_OK) {
-            val qrData = result.data?.getStringExtra("QR_DATA")
-            qrData?.let {
+            val deeplink = result.data?.getStringExtra("QR_DATA")
+            deeplink?.let {
                 Toast.makeText(this, "QR Data: $it", Toast.LENGTH_LONG).show()
+                val submitIntent = Intent(this, SubmitActivity::class.java)
+                submitIntent.putExtra("DEEPLINK", deeplink)
+                startActivity(submitIntent)
             }
         } else {
             Toast.makeText(this, "Scan cancelled", Toast.LENGTH_SHORT).show()

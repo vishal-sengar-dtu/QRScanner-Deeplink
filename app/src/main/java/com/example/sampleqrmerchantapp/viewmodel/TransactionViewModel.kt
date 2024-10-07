@@ -6,13 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sampleqrmerchantapp.model.TxnStatusResponse
-import com.example.sampleqrmerchantapp.model.TxnStatusRequestBody
+import com.example.sampleqrmerchantapp.model.PaymentResponse
+import com.example.sampleqrmerchantapp.model.PaymentRequest
 import com.example.sampleqrmerchantapp.network.NetworkResult
 import com.example.sampleqrmerchantapp.repository.Repository
 import kotlinx.coroutines.launch
 
-class SubmitViewModel(private val repository: Repository) : ViewModel() {
+class TransactionViewModel(private val repository: Repository) : ViewModel() {
     lateinit var deepLink : Uri
     private var orderId : String? = null
     var mid : String? = null
@@ -20,17 +20,20 @@ class SubmitViewModel(private val repository: Repository) : ViewModel() {
     var amount : String? = null
     var isDynamic = false
 
-    private val _txnResponse = MutableLiveData<NetworkResult<TxnStatusResponse>>()
-    val txnResponse: LiveData<NetworkResult<TxnStatusResponse>> get() = _txnResponse
+    private val _txnResponse = MutableLiveData<NetworkResult<PaymentResponse>>()
+    val txnResponse: LiveData<NetworkResult<PaymentResponse>> get() = _txnResponse
 
-    fun getTxnStatus() {
+    fun proceedTransaction() {
         _txnResponse.value = NetworkResult.Loading()
-        viewModelScope.launch {
-            val response = repository.getTxnResponse(TxnStatusRequestBody(
-                amount = this@SubmitViewModel.amount,
-                mid = this@SubmitViewModel.mid,
-                orderId = this@SubmitViewModel.orderId
-            ))
+        val job = viewModelScope.launch {
+            val paymentRequest = PaymentRequest(
+                mid = this@TransactionViewModel.mid,
+                orderId = this@TransactionViewModel.orderId,
+                amount = this@TransactionViewModel.amount
+            )
+
+            val response = repository.makePayment(paymentRequest)
+            Log.d("Response", response.errorMessage.toString())
             _txnResponse.postValue(response)
         }
     }

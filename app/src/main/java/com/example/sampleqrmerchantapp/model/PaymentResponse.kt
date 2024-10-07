@@ -6,7 +6,7 @@ import androidx.annotation.Keep
 
 @Keep
 @Parcelize
-data class TxnStatusResponse(
+data class PaymentResponse(
     val amount: String?,
     val businessName: String?,
     val message: String?,

@@ -6,7 +6,7 @@ import androidx.annotation.Keep
 
 @Keep
 @Parcelize
-data class TxnStatusRequestBody(
+data class PaymentRequest(
     val amount: String?,
     val mid: String?,
     val orderId: String?

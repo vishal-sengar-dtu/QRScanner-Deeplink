@@ -1,60 +1,119 @@
 package com.example.sampleqrmerchantapp.fragment
 
+import android.Manifest.permission.CAMERA
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity.RESULT_OK
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.sampleqrmerchantapp.R
+import com.example.sampleqrmerchantapp.ScannerActivity
+import com.example.sampleqrmerchantapp.databinding.FragmentHomeBinding
+import com.example.sampleqrmerchantapp.viewmodel.TransactionViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var binding : FragmentHomeBinding
+    private lateinit var sharedViewModel : TransactionViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    //Camera Runtime Permission Handling Launcher
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted : Boolean ->
+        if(isGranted) {
+            startCamera()
+        } else {
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), CAMERA)) {
+                enablePermissionFromSettings()
+            } else {
+                checkAndRequestCameraPermission()
+            }
+        }
+    }
+
+    //Scanner Activity Result Launcher
+    private val scanResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if(result.resultCode == RESULT_OK) {
+            val deeplink = result.data?.getStringExtra("QR_DATA")
+            deeplink?.let {
+                Toast.makeText(requireContext(), "QR Data: $it", Toast.LENGTH_LONG).show()
+                sharedViewModel.deepLink = Uri.parse(it)
+                findNavController().navigate(R.id.action_homeFragment_to_submitFragment)
+            }!!
+        } else {
+            Toast.makeText(requireContext(), "Scan cancelled", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        binding = FragmentHomeBinding.inflate(layoutInflater)
+        sharedViewModel = ViewModelProvider(requireActivity())[TransactionViewModel::class.java]
+
+        binding.scanButton.setOnClickListener {
+            checkAndRequestCameraPermission()
+        }
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    private fun checkAndRequestCameraPermission() {
+        if(ActivityCompat.checkSelfPermission(requireContext(), CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            startCamera()
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), CAMERA)) {
+                showPermissionRationale()
+            } else {
+                requestCameraPermissionLauncher.launch(CAMERA)
             }
+        }
     }
+
+    private fun startCamera() {
+        val scannerIntent = Intent(requireActivity(), ScannerActivity::class.java)
+        scanResultLauncher.launch(scannerIntent)
+    }
+
+    private fun showPermissionRationale() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Camera Permission Needed")
+            .setMessage("Camera access is required to scan QR code. Please grant the permission")
+            .setPositiveButton("Allow") { _,_ -> requestCameraPermissionLauncher.launch(CAMERA)}
+            .setNegativeButton("Deny", null)
+            .create()
+            .show()
+    }
+
+    private fun enablePermissionFromSettings() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Camera Permission Denied")
+            .setMessage("Camera access is required to scan QR code. You can enable it from settings.")
+            .setPositiveButton("Go to Settings") { _,_ ->
+                val intent = Intent().apply {
+                    action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    data = Uri.fromParts("package", requireActivity().packageName, null)
+                }
+                startActivity(intent)
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+            .show()
+    }
+
 }

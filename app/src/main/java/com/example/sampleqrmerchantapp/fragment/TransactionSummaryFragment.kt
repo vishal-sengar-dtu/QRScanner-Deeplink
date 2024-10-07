@@ -1,60 +1,99 @@
 package com.example.sampleqrmerchantapp.fragment
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.sampleqrmerchantapp.R
+import com.example.sampleqrmerchantapp.databinding.AlertDialogBoxBinding
+import com.example.sampleqrmerchantapp.databinding.FragmentTransactionSummaryBinding
+import com.example.sampleqrmerchantapp.model.PaymentResponse
+import com.example.sampleqrmerchantapp.network.NetworkResult
+import com.example.sampleqrmerchantapp.viewmodel.TransactionViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [TransactionSummaryFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class TransactionSummaryFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding : FragmentTransactionSummaryBinding
+    private lateinit var sharedViewModel: TransactionViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_transaction_summary, container, false)
+        binding = FragmentTransactionSummaryBinding.inflate(layoutInflater)
+        sharedViewModel = ViewModelProvider(requireActivity())[TransactionViewModel::class.java]
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        observeTransactionStatus()
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TransactionSummaryFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            TransactionSummaryFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun observeTransactionStatus() {
+        sharedViewModel.txnResponse.observe(viewLifecycleOwner) { status ->
+            when(status) {
+                is NetworkResult.Success -> {
+                    binding.loader.visibility = View.GONE
+                    status.data?.let { showTransactionStatus(it) }
+                }
+                is NetworkResult.Error -> {
+                    binding.loader.visibility = View.GONE
+                    showCustomDialog("Network Error", status.errorMessage.toString(), "Rescan")
+                }
+                is NetworkResult.Loading -> {
+                    binding.loader.visibility = View.VISIBLE
                 }
             }
+        }
     }
+
+    private fun showTransactionStatus(data: PaymentResponse) {
+        binding.statusCard.visibility = View.VISIBLE
+        binding.merchantName.text = data.businessName
+        binding.message.text = data.message
+        binding.txnAmount.text = "₹ ${data.amount}"
+        binding.txnDate.text = data.txnDate
+        binding.txnOrderId.text = data.orderId
+        when(data.status) {
+            "TXN_SUCCESS" -> {
+                binding.doneButton.visibility = View.VISIBLE
+                binding.ivStatus.setImageResource(R.drawable.success_tick)
+                binding.txnStatus.text = "PAYMENT SUCCESSFUL"
+            }
+            "TXN_FAILURE" -> {
+                binding.rescanButton.visibility = View.VISIBLE
+                binding.ivStatus.setImageResource(R.drawable.failed_icon)
+                binding.txnStatus.text = "PAYMENT FAILED"
+            }
+        }
+    }
+
+    private fun showCustomDialog(title: String, message: String, btnText: String) {
+        val dialogBinding = AlertDialogBoxBinding.inflate(layoutInflater)
+
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.alertCardBox)
+            .setCancelable(false)
+            .create()
+
+        dialogBinding.title.text = title
+        dialogBinding.alertMessage.text = message
+        dialogBinding.positiveButton.text = btnText
+
+        dialogBinding.positiveButton.setOnClickListener {
+            alertDialog.dismiss()
+            findNavController().popBackStack()
+        }
+
+        alertDialog.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+
 }

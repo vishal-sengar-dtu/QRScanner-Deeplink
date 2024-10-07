@@ -1,33 +1,29 @@
 package com.example.sampleqrmerchantapp.repository
 
 import android.util.Log
-import com.example.sampleqrmerchantapp.model.TxnStatusRequestBody
-import com.example.sampleqrmerchantapp.model.TxnStatusResponse
-import com.example.sampleqrmerchantapp.network.ApiClient
+import com.example.sampleqrmerchantapp.model.PaymentRequest
+import com.example.sampleqrmerchantapp.model.PaymentResponse
+import com.example.sampleqrmerchantapp.network.ApiService
 import com.example.sampleqrmerchantapp.network.NetworkResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.lang.Exception
 
-class Repository {
-    suspend fun getTxnResponse(txnStatusRequestBody: TxnStatusRequestBody) : NetworkResult<TxnStatusResponse> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = ApiClient.instance.getTxnResponse(txnStatusRequestBody)
+class Repository(private val apiService : ApiService) {
+    suspend fun makePayment(paymentRequest: PaymentRequest) : NetworkResult<PaymentResponse> {
+        return try {
+                val response = apiService.makePayment(paymentRequest)
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        Log.d("Transaction Status", it.toString())
-                        return@withContext NetworkResult.Success(it)
+                        Log.d("Transaction Response", it.toString())
+                        return NetworkResult.Success(it)
                     } ?: run {
-                        return@withContext NetworkResult.Error("Empty response body")
+                        return NetworkResult.Error(null, "Empty response body")
                     }
                 } else {
-                    return@withContext NetworkResult.Error("Http error: ${response.code()} ${response.message()}")
+                    return NetworkResult.Error(null, "Http error: ${response.code()} ${response.body().toString()}")
                 }
             }
             catch(e : Exception) {
-                return@withContext NetworkResult.Error("Network error: ${e.message}")
+                return NetworkResult.Error(null, "Network error: ${e.message}")
             }
-        }
     }
 }

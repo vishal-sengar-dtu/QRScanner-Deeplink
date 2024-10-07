@@ -2,6 +2,9 @@ package com.example.sampleqrmerchantapp
 
 import android.app.Activity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +25,9 @@ class ScannerActivity : AppCompatActivity() {
         binding.barcodeScanner.decoderFactory = DefaultDecoderFactory(formats)
 
         startCamera()
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.retryMessage.visibility = View.VISIBLE
+        }, 8000)
     }
 
     private fun startCamera() {

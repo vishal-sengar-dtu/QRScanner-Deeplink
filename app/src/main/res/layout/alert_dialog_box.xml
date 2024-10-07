@@ -4,7 +4,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/alert_card_box"
-        android:layout_width="240dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,28 +46,49 @@
                 app:layout_constraintTop_toTopOf="@id/header"
                 tools:text="Alert Title" />
 
-            <TextView
-                android:id="@+id/alert_message"
+            <LinearLayout
+                android:id="@+id/alert_body"
+                android:padding="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="24dp"
-                android:textAlignment="center"
-                android:textColor="@color/material_dynamic_neutral20"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toTopOf="@+id/positive_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/header"
-                app:layout_constraintVertical_bias="0.5"
-                tools:text="This is a custom CardView dialog." />
+                app:layout_constraintBottom_toTopOf="@id/positive_button">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/failed_icon"
+                    android:layout_margin="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/alert_message"
+                    android:layout_gravity="center"
+                    app:layout_constraintBottom_toBottomOf="@id/alert_message"/>
+
+                <TextView
+                    android:id="@+id/alert_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="24dp"
+                    android:textAlignment="center"
+                    android:maxLines="2"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@+id/positive_button"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintTop_toBottomOf="@id/header"
+                    app:layout_constraintVertical_bias="0.5"
+                    tools:text="This is a custom CardView dialog." />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/positive_button"
                 android:layout_width="80dp"
                 android:layout_height="36dp"
                 android:layout_gravity="end"
-                android:layout_marginBottom="18dp"
+                android:layout_marginBottom="24dp"
                 android:background="@drawable/round_corner_button"
                 android:letterSpacing="0.05"
                 android:text="Button"
@@ -91,7 +112,7 @@
                 android:id="@+id/card_bottom_2"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:background="@color/black"
+                android:background="@color/material_dynamic_neutral20"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

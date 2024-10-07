@@ -29,7 +29,22 @@ class TransactionSummaryFragment : Fragment() {
         sharedViewModel = ViewModelProvider(requireActivity())[TransactionViewModel::class.java]
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         observeTransactionStatus()
+        setOnclickListeners()
         return binding.root
+    }
+
+    private fun setOnclickListeners() {
+        if(binding.doneButton.visibility == View.VISIBLE) {
+            binding.doneButton.setOnClickListener {
+                findNavController().popBackStack()
+            }
+        }
+
+        if(binding.rescanButton.visibility == View.VISIBLE) {
+            binding.rescanButton.setOnClickListener {
+                findNavController().popBackStack()
+            }
+        }
     }
 
     private fun observeTransactionStatus() {

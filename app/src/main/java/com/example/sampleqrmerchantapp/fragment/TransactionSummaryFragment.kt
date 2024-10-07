@@ -67,11 +67,11 @@ class TransactionSummaryFragment : Fragment() {
 
     private fun showTransactionStatus(data: PaymentResponse) {
         binding.statusCard.visibility = View.VISIBLE
-        binding.merchantName.text = data.businessName
-        binding.message.text = data.message
-        binding.txnAmount.text = "₹ ${data.amount}"
-        binding.txnDate.text = data.txnDate
-        binding.txnOrderId.text = data.orderId
+        binding.merchantName.text = data.businessName ?: ""
+        binding.message.text = data.message ?: ""
+        binding.txnAmount.text = "₹ ${data.amount}" ?: ""
+        binding.txnDate.text = data.txnDate ?: ""
+        binding.txnOrderId.text = data.orderId ?: ""
         when(data.status) {
             "TXN_SUCCESS" -> {
                 binding.doneButton.visibility = View.VISIBLE

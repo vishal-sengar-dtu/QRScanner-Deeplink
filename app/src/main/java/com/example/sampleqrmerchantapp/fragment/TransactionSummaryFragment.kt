@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.sampleqrmerchantapp.R
-import com.example.sampleqrmerchantapp.Util.Utility
+import com.example.sampleqrmerchantapp.util.Utility
 import com.example.sampleqrmerchantapp.databinding.AlertDialogBoxBinding
 import com.example.sampleqrmerchantapp.databinding.FragmentTransactionSummaryBinding
 import com.example.sampleqrmerchantapp.model.UIPaymentResponse

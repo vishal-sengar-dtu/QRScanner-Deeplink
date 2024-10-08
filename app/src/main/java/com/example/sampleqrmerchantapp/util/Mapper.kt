@@ -1,4 +1,4 @@
-package com.example.sampleqrmerchantapp.Util
+package com.example.sampleqrmerchantapp.util
 
 import com.example.sampleqrmerchantapp.model.PaymentResponse
 import com.example.sampleqrmerchantapp.model.UIPaymentResponse

@@ -1,4 +1,4 @@
-package com.example.sampleqrmerchantapp.Util
+package com.example.sampleqrmerchantapp.util
 
 import android.content.Context
 import android.content.SharedPreferences

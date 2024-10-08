@@ -1,7 +1,7 @@
 package com.example.sampleqrmerchantapp.repository
 
 import android.util.Log
-import com.example.sampleqrmerchantapp.Util.Mapper
+import com.example.sampleqrmerchantapp.util.Mapper
 import com.example.sampleqrmerchantapp.model.PaymentRequest
 import com.example.sampleqrmerchantapp.model.UIPaymentResponse
 import com.example.sampleqrmerchantapp.network.ApiService

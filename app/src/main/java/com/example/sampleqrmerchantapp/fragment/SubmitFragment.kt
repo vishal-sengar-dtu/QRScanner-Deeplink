@@ -1,8 +1,10 @@
 package com.example.sampleqrmerchantapp.fragment
 
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +13,14 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.sampleqrmerchantapp.R
+import com.example.sampleqrmerchantapp.adapter.MIDAdapter
 import com.example.sampleqrmerchantapp.databinding.FragmentSubmitBinding
 import com.example.sampleqrmerchantapp.viewmodel.TransactionViewModel
 
 class SubmitFragment : Fragment() {
     private lateinit var binding: FragmentSubmitBinding
     private lateinit var sharedViewModel: TransactionViewModel
+    private val recentTexts = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,6 +32,7 @@ class SubmitFragment : Fragment() {
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         sharedViewModel.parseDeepLink()
         setSubmitScreenData()
+        setupAutoCompleteListener()
         binding.payButton.setOnClickListener {
             onProceedClick()
         }
@@ -57,6 +62,23 @@ class SubmitFragment : Fragment() {
             }
             else -> return false
         }
+    }
+
+    private fun setupAutoCompleteListener() {
+        val sharedPreferences = requireContext().getSharedPreferences("APP_PREFERENCES", Context.MODE_PRIVATE)
+        val mids = sharedPreferences.getStringSet("MIDs", HashSet())?.toList() ?: emptyList()
+
+        if (mids.isEmpty()) {
+            Log.e("STORED_MID", "No MIDs found in SharedPreferences")
+            return
+        } else {
+            Log.d("STORED_MID", mids.toString())
+        }
+
+        val midAdapter = MIDAdapter(requireContext(), mids)
+        binding.etMid.setAdapter(midAdapter)
+
+        binding.etMid.threshold = 1
     }
 
     private fun setSubmitScreenData() {

@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.view.animation.AnimationUtils
-import android.view.animation.TranslateAnimation
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sampleqrmerchantapp.databinding.ActivityScannerBinding
 import com.google.zxing.BarcodeFormat
@@ -15,6 +13,7 @@ import com.journeyapps.barcodescanner.DefaultDecoderFactory
 
 class ScannerActivity : AppCompatActivity() {
     private lateinit var binding : ActivityScannerBinding
+    private val deepLinkSchema = "upi"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +26,7 @@ class ScannerActivity : AppCompatActivity() {
         startCamera()
         Handler(Looper.getMainLooper()).postDelayed({
             binding.retryMessage.visibility = View.VISIBLE
-        }, 8000)
+        }, 10000)
     }
 
     private fun startCamera() {
@@ -37,10 +36,15 @@ class ScannerActivity : AppCompatActivity() {
 
     private val callback = BarcodeCallback { result ->
         if (result != null) {
-            // QR Code result is fetched
-            intent.putExtra("QR_DATA", result.text)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            val deeplink = result.text
+            val schema = deeplink.split("://")[0];
+
+            // QR Code result for upi://pay is fetched
+            if(schema.equals(deepLinkSchema, true)) {
+                intent.putExtra("QR_DATA", deeplink)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
         }
     }
 

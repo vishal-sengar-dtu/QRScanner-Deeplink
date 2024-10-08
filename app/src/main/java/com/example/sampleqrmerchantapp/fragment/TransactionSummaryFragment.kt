@@ -10,9 +10,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.sampleqrmerchantapp.R
+import com.example.sampleqrmerchantapp.Util.Utility
 import com.example.sampleqrmerchantapp.databinding.AlertDialogBoxBinding
 import com.example.sampleqrmerchantapp.databinding.FragmentTransactionSummaryBinding
-import com.example.sampleqrmerchantapp.model.PaymentResponse
+import com.example.sampleqrmerchantapp.model.UIPaymentResponse
 import com.example.sampleqrmerchantapp.network.NetworkResult
 import com.example.sampleqrmerchantapp.viewmodel.TransactionViewModel
 
@@ -34,17 +35,14 @@ class TransactionSummaryFragment : Fragment() {
     }
 
     private fun setOnclickListeners() {
-        if(binding.doneButton.visibility == View.VISIBLE) {
-            binding.doneButton.setOnClickListener {
-                findNavController().popBackStack()
-            }
+        binding.doneButton.setOnClickListener {
+            findNavController().popBackStack()
         }
 
-        if(binding.rescanButton.visibility == View.VISIBLE) {
-            binding.rescanButton.setOnClickListener {
-                findNavController().popBackStack()
-            }
+        binding.rescanButton.setOnClickListener {
+            findNavController().popBackStack()
         }
+
     }
 
     private fun observeTransactionStatus() {
@@ -65,7 +63,7 @@ class TransactionSummaryFragment : Fragment() {
         }
     }
 
-    private fun showTransactionStatus(data: PaymentResponse) {
+    private fun showTransactionStatus(data: UIPaymentResponse) {
         binding.statusCard.visibility = View.VISIBLE
         binding.merchantName.text = data.businessName ?: ""
         binding.message.text = data.message ?: ""
@@ -77,6 +75,7 @@ class TransactionSummaryFragment : Fragment() {
                 binding.doneButton.visibility = View.VISIBLE
                 binding.ivStatus.setImageResource(R.drawable.success_tick)
                 binding.txnStatus.text = "PAYMENT SUCCESSFUL"
+                Utility.saveMID(data.mid, requireContext())
             }
             "TXN_FAILURE" -> {
                 binding.rescanButton.visibility = View.VISIBLE
